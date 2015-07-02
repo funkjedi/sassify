@@ -101,11 +101,9 @@ class sassify_plugin {
 		// Check if the stylesheet needs to be recompiled
 		if (isset($filemtimes[$out]) === false || $filemtimes[$out] < $filemtime || $this->admin->get_setting('always_compile')) {
 			try {
+				// Compile the SCSS to CSS
 				$compiler = new sassify_compiler(dirname($in), $this->admin->get_setting('compiling_mode'));
-
-				// Compile the SCSS and then save the CSS
 				$css = $compiler->compile(file_get_contents($in));
-				file_put_contents($out, $css);
 			}
 			catch (Exception $e) {
 				array_push($this->errors, array(
@@ -114,6 +112,12 @@ class sassify_plugin {
 				));
 				return $src;
 			}
+
+			// Transform relative paths so they still work correctly
+			$css = preg_replace('#(url\((?![\'"]?(?:https?:|/))[\'"]?)#miu', '$1' . dirname($url['path']) . '/', $css);
+
+			// Save the CSS
+			file_put_contents($out, $css);
 
 			// Cache the filemtime for the destination file
 			$filemtimes[$out] = filemtime($out);
