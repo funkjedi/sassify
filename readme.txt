@@ -13,7 +13,12 @@ Adds support for SCSS stylesheets to wp_enqueue_style.
 
 == Description ==
 
-This plugin adds support for SCSS stylesheets to wp_enqueue_style. Just enqueue your styleheet using `wp_enqueue_style` and it will automatically be compiled for you when neccessary.
+This plugin adds support for SCSS stylesheets to `wp_enqueue_style`. Just enqueue your styleheet using `wp_enqueue_style` and it will automatically be compiled for you when neccessary.
+Variables can be injected using the `sassify_compiler_variables` filter.
+
+= SCSSPHP =
+This plugin uses the latest version of [scssphp](https://github.com/leafo/scssphp), modified to PHP 5.2.
+It implements SCSS 3.2.12. It does not implement the SASS syntax, only the SCSS syntax.
 
 = Bug Submission =
 https://github.com/funkjedi/sassify/issues/
@@ -28,6 +33,7 @@ https://github.com/funkjedi/sassify/issues/
 == Screenshots ==
 
 1. Sassify settings.
+2. Injecting variables.
 
 
 == Changelog ==
