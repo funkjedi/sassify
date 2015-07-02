@@ -1,7 +1,7 @@
 <?php
 
 require_once SASSIFY_PLUGIN_DIR . 'class-sassify-admin.php';
-require_once SASSIFY_PLUGIN_DIR . 'class-sassify-compiler.php';
+require_once SASSIFY_PLUGIN_DIR . 'vendor/scssphp/scss.inc.php';
 
 class sassify_plugin {
 
@@ -90,19 +90,45 @@ class sassify_plugin {
 		// Full output path
 		$out = $outputDir . '/' . $outName;
 
-		// Check filemtime
-		$filemtime = filemtime($in);
+		// Flag if a compile is required
+		$compileRequired = $this->admin->get_setting('always_compile', false);
 
 		// Retrieve cached filemtimes
 		if (($filemtimes = get_transient('sassify_filemtimes')) === false) {
 			$filemtimes = array();
 		}
 
+		// Check if compile is required based on file modification times
+		if ($compileRequired === false) {
+			if (isset($filemtimes[$out]) === false || $filemtimes[$out] < filemtime($in)) {
+				$compileRequired = true;
+			}
+		}
+
+		// Retrieve variables
+		$variables = apply_filters('sassify_compiler_variables', array(
+			'template_directory_uri'   => get_template_directory_uri(),
+			'stylesheet_directory_uri' => get_stylesheet_directory_uri(),
+		));
+
+		// If variables have been updated then recompile
+		if ($compileRequired === false) {
+			$signature = sha1(serialize($variables));
+			if ($signature !== get_transient('sassify_variables_signature')) {
+				$compileRequired = true;
+				set_transient('sassify_variables_signature', $signature);
+			}
+		}
+
 		// Check if the stylesheet needs to be recompiled
-		if (isset($filemtimes[$out]) === false || $filemtimes[$out] < $filemtime || $this->admin->get_setting('always_compile')) {
+		if ($compileRequired) {
+			$compiler = new Leafo_ScssPhp_Compiler;
+			$compiler->setFormatter($this->admin->get_setting('compiling_mode', 'Leafo_ScssPhp_Formatter_Expanded'));
+			$compiler->setVariables($variables);
+			$compiler->setImportPaths(dirname($in));
+
 			try {
 				// Compile the SCSS to CSS
-				$compiler = new sassify_compiler(dirname($in), $this->admin->get_setting('compiling_mode'));
 				$css = $compiler->compile(file_get_contents($in));
 			}
 			catch (Exception $e) {
