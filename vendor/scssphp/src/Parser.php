@@ -1518,7 +1518,7 @@ class Leafo_ScssPhp_Parser
             $s = $this->seek();
             // self
             if ($this->literal('&', false)) {
-                $parts[] = Compiler::$selfSelector;
+                $parts[] = Leafo_ScssPhp_Compiler::$selfSelector;
                 continue;
             }
 
