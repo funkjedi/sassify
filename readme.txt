@@ -19,7 +19,7 @@ Variables can be injected using the `sassify_compiler_variables` filter.
 
 = SCSSPHP =
 
-This plugin uses the latest version of [scssphp](https://github.com/leafo/scssphp), modified to PHP 5.2.
+This plugin uses the latest version of [scssphp](https://github.com/leafo/scssphp), modified to be PHP 5.2 compatible.
 
 It implements SCSS 3.2.12. It does not implement the SASS syntax, only the SCSS syntax.
 
